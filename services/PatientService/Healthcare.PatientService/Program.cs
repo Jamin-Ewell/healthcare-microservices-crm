@@ -1,3 +1,4 @@
+using Healthcare.PatientService.Messaging.RabbitMQ;
 using Healthcare.PatientService.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ builder.Services.AddMediatR(cfg =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IRabbitMqPublisher, RabbitMqPublisher>();
 
 var app = builder.Build();
 

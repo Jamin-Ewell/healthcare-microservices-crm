@@ -1,4 +1,5 @@
 using Healthcare.PatientService.Domain.Entities;
+using Healthcare.PatientService.Messaging.RabbitMQ;
 using Healthcare.PatientService.Persistence;
 using MediatR;
 
@@ -8,13 +9,17 @@ public class CreatePatientHandler
 	: IRequestHandler<CreatePatientCommand, Guid>
 {
 	private readonly PatientDbContext _context;
+    private readonly IRabbitMqPublisher _publisher;
 
-	public CreatePatientHandler(PatientDbContext context)
-	{
-		_context = context;
-	}
+    public CreatePatientHandler(
+        PatientDbContext context,
+        IRabbitMqPublisher publisher)
+    {
+        _context = context;
+        _publisher = publisher;
+    }
 
-	public async Task<Guid> Handle(
+    public async Task<Guid> Handle(
 		CreatePatientCommand request,
 		CancellationToken cancellationToken)
 	{
@@ -28,7 +33,11 @@ public class CreatePatientHandler
 
 		_context.Patients.Add(patient);
 		await _context.SaveChangesAsync(cancellationToken);
-
-		return patient.Id;
+        await _publisher.PublishAsync(new
+        {
+            patient.Id,
+            patient.Email
+        });
+        return patient.Id;
 	}
 }
