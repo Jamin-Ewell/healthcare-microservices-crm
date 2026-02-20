@@ -1,0 +1,1 @@
+public record PatientCreatedEvent(Guid Id, string Email);
