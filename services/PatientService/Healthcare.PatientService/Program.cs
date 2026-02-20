@@ -20,6 +20,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IRabbitMqPublisher, RabbitMqPublisher>();
 builder.Services.AddScoped<IServiceBusPublisher, ServiceBusPublisher>();
+builder.Services.AddHostedService<PatientCleanupWorker>();
 
 var app = builder.Build();
 
