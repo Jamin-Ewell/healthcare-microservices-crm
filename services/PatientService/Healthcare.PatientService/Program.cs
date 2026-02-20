@@ -3,6 +3,8 @@ using Healthcare.PatientService.Messaging.ServiceBus;
 using Healthcare.PatientService.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Polly;
+using Polly.Extensions.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +23,13 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IRabbitMqPublisher, RabbitMqPublisher>();
 builder.Services.AddScoped<IServiceBusPublisher, ServiceBusPublisher>();
 builder.Services.AddHostedService<PatientCleanupWorker>();
+
+builder.Services.AddHttpClient("ExternalApi")
+    .AddPolicyHandler(HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .WaitAndRetryAsync(3, retryAttempt =>
+            TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))))
+    .AddPolicyHandler(Policy.TimeoutAsync<HttpResponseMessage>(5));
 
 var app = builder.Build();
 
