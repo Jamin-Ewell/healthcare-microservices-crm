@@ -1,1 +1,7 @@
-<p>appointment-list works!</p>
+<input (input)="search($event.target.value)" placeholder="Search doctor">
+
+<ul>
+  <li *ngFor="let appt of appointments$ | async; trackBy: trackById">
+    {{ appt.doctorName }} - {{ appt.visitDate }}
+  </li>
+</ul>

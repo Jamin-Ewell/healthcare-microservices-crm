@@ -1,12 +1,30 @@
-import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
-  selector: 'app-login',
   standalone: true,
-  imports: [],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  imports: [CommonModule, ReactiveFormsModule]
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
 
+  form!: FormGroup;
+
+  constructor(private fb: FormBuilder, private auth: AuthService) {}
+
+  ngOnInit() {
+    this.form = this.fb.group({
+      email: ['', [Validators.required]],
+      password: ['', Validators.required]
+    });
+  }
+
+  submit() {
+    if (this.form.invalid) return;
+
+    this.auth.login(this.form.value).subscribe();
+  }
 }
