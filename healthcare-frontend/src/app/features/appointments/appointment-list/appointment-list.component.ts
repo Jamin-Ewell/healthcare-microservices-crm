@@ -1,10 +1,12 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { AppointmentDto } from '../../../core/dtos/appointment.dto';
-import { debounceTime, Observable, Subject, switchMap } from 'rxjs';
+import { debounceTime, Observable, Subject, switchMap, startWith } from 'rxjs';
 import { AppointmentService } from '../../../core/services/appointment.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   standalone: true,
+  imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './appointment-list.component.html',
 })
@@ -15,18 +17,19 @@ export class AppointmentListComponent implements OnInit {
 
   constructor(private service: AppointmentService) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.appointments$ = this.search$.pipe(
+      startWith(''), // initial load
       debounceTime(300),
-      switchMap(async (term) => this.service.search(term))
+      switchMap(term => this.service.search(term)) // ✅ NO async
     );
   }
 
   trackById(index: number, item: AppointmentDto) {
-    return item.patientId;
+    return item.id;
   }
 
-  search(term: string) {
+  search(term: string): void {
     this.search$.next(term);
   }
 }

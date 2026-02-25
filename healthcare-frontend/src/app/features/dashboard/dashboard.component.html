@@ -1,0 +1,7 @@
+<h2>Dashboard</h2>
+
+<ul>
+  <li *ngFor="let patient of patients$ | async; trackBy: trackById">
+    {{ patient.name }} - {{ patient.email }}
+  </li>
+</ul>

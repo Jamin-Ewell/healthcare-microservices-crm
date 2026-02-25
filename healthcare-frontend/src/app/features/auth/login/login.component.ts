@@ -12,19 +12,33 @@ import { AuthService } from '../../../core/services/auth.service';
 export class LoginComponent implements OnInit {
 
   form!: FormGroup;
+  loading = false;
+  errorMessage = '';
 
-  constructor(private fb: FormBuilder, private auth: AuthService) {}
+  constructor(
+    private fb: FormBuilder,
+    private auth: AuthService
+  ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.form = this.fb.group({
-      email: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
     });
   }
 
-  submit() {
+  submit(): void {
     if (this.form.invalid) return;
 
-    this.auth.login(this.form.value).subscribe();
+    this.loading = true;
+    this.errorMessage = '';
+
+    this.auth.login(this.form.value).subscribe({
+      next: () => this.loading = false,
+      error: () => {
+        this.errorMessage = 'Invalid credentials';
+        this.loading = false;
+      }
+    });
   }
 }
