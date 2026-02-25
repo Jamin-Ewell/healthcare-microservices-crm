@@ -6,9 +6,9 @@ using MediatR;
 namespace Healthcare.PatientService.Application.Patients.Commands;
 
 public class CreatePatientHandler
-	: IRequestHandler<CreatePatientCommand, Guid>
+    : IRequestHandler<CreatePatientCommand, Guid>
 {
-	private readonly PatientDbContext _context;
+    private readonly PatientDbContext _context;
     private readonly IRabbitMqPublisher _publisher;
 
     public CreatePatientHandler(
@@ -20,24 +20,29 @@ public class CreatePatientHandler
     }
 
     public async Task<Guid> Handle(
-		CreatePatientCommand request,
-		CancellationToken cancellationToken)
-	{
-		var patient = new Patient
-		{
-			Id = Guid.NewGuid(),
-			FirstName = request.FirstName,
-			LastName = request.LastName,
-			Email = request.Email
-		};
+        CreatePatientCommand request,
+        CancellationToken cancellationToken)
+    {
+        var patient = new Patient
+        {
+            Id = Guid.NewGuid(),
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            Email = request.Email,
+            DateOfBirth = request.DateOfBirth
+        };
 
-		_context.Patients.Add(patient);
-		await _context.SaveChangesAsync(cancellationToken);
+        _context.Patients.Add(patient);
+        await _context.SaveChangesAsync(cancellationToken);
+
         await _publisher.PublishAsync(new
         {
             patient.Id,
-            patient.Email
+            patient.Email,
+            patient.FirstName,
+            patient.LastName
         });
+
         return patient.Id;
-	}
+    }
 }

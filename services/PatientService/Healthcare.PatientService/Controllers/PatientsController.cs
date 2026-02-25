@@ -1,4 +1,5 @@
 using Healthcare.PatientService.Application.Patients.Commands;
+using Healthcare.PatientService.Application.Patients.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,5 +21,12 @@ public class PatientsController : ControllerBase
     {
         var id = await _mediator.Send(command);
         return Ok(id);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var patients = await _mediator.Send(new GetPatientsQuery());
+        return Ok(patients);
     }
 }
